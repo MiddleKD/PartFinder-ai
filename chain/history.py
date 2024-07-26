@@ -4,9 +4,10 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 
 class TruncatedChatMessageHistory(ChatMessageHistory):
-    def __init__(self, max_length=10):
+    max_length = 5
+
+    def __init__(self):
         super().__init__()
-        self.max_length = max_length
         
     def add_messages(self, new_msg):
         if len(self.messages) >= self.max_length:

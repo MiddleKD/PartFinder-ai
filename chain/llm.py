@@ -43,6 +43,9 @@ class SimpleLLM(Runnable):
                 time.sleep(5)
         return output
     
+    def stream(self, *args, **kwargs):
+        return self.llm.stream(*args, **kwargs)
+    
     def bind_tools(self, *args, **kwargs):
         self.llm = self.llm.bind_tools(*args, **kwargs)
         return self
