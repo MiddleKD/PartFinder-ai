@@ -64,7 +64,7 @@ class KnowledgeBaseTemplateChain(SimpleLLM):
         model_name: str = None,
         retry_count: int = 3,
     ):
-        super().__init__(llm_type, model_name)
+        super().__init__(llm_type, model_name, retry_count)
         
         self.retry_count = retry_count
         self.system_message = self._make_sysmsg_with_fewshot(examples=EXAMPLE_KNOWLEDGE_BASE_LIST)

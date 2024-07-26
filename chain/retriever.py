@@ -5,10 +5,32 @@ import hashlib
 from typing import List, Dict, Literal, Any
 from chromadb.api import ClientAPI
 from chromadb.config import Settings
+from langchain.pydantic_v1 import BaseModel, Field
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
+from langchain_community.retrievers import TavilySearchAPIRetriever
+from langchain_core.vectorstores.base import VectorStoreRetriever
+
+class WebsearchRetriever(TavilySearchAPIRetriever):
+
+    class ToolSchema(BaseModel):
+        query:str = Field(description="Simple query to obtain additional information on web.")
+
+    def __init__(self, max_results=1):
+        os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
+        super().__init__(k=max_results)
+
+    def as_tool(self):
+        return super().as_tool(
+            args_schema=self.ToolSchema,
+            name="web_search",
+            description="Obtaining additional information by searching the web."
+        )
 
 class DocRetrieverManager(Chroma):
+
+    class ToolSchema(BaseModel):
+        query:str = Field(description="Query to accurately search for the manufacturing parts the user is looking for")
 
     def __init__(
         self, 
@@ -135,6 +157,8 @@ class DocRetrieverManager(Chroma):
         return formed_features_list
 
     def insert_dict(self, inputs:List[dict], check_is_kb:bool=True):
+        inputs = inputs.copy()
+        
         if check_is_kb == True:
             self._check_is_knowledgebase(inputs)
             ids = [self._generate_sha256_id(
@@ -142,10 +166,22 @@ class DocRetrieverManager(Chroma):
                     input["classification"], input
                     ["metadata"]["ori_features"]]
                  ) for input in inputs]
-            
+            for idx, id in enumerate(ids):
+                inputs[idx]["metadata"]["id"] = id
         docs = self._to_document(inputs)
         
         if check_is_kb == True:
             self.add_documents(docs, ids=ids)
         else:
             self.add_documents(docs)
+
+    def as_retriever(self, **kwargs: Any) -> VectorStoreRetriever:
+        return super().as_retriever(**kwargs)
+
+    def as_tool(self, **kwargs):
+        retriever = self.as_retriever(**kwargs)
+        return retriever.as_tool(
+            args_schema=self.ToolSchema,
+            name="manufacturing_part_search",
+            description="Searching for manufacturing parts in the database based on dimensional queries."
+        )

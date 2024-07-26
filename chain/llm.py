@@ -1,12 +1,13 @@
-import os
+import os, time
 from typing import Literal
 from langchain_core.language_models import LanguageModelInput
-
-class SimpleLLM:
+from langchain_core.runnables import Runnable
+class SimpleLLM(Runnable):
     def __init__(
             self, 
             llm_type:Literal["google", "openai", "anthropic"], 
-            model_name:str = None
+            model_name:str = None,
+            retry_count:int = 3
         ):
         if llm_type == "google":
             from langchain_google_genai import ChatGoogleGenerativeAI
@@ -30,6 +31,18 @@ class SimpleLLM:
             else:
                 llm = ChatAnthropic(model=model_name, temperature=0)
         self.llm = llm
-
-    def invoke(self, llm_input:LanguageModelInput):
-        return self.llm.invoke(llm_input)
+        self.retry_count = retry_count
+        
+    def invoke(self, *args, **kwargs):
+        for retry_idx in range(self.retry_count):
+            try:
+                output = self.llm.invoke(*args, **kwargs)
+                break
+            except ValueError as e:
+                print(f"Retry({retry_idx})... Google API somethig wrong!")
+                time.sleep(5)
+        return output
+    
+    def bind_tools(self, *args, **kwargs):
+        self.llm = self.llm.bind_tools(*args, **kwargs)
+        return self
