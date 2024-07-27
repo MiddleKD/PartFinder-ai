@@ -10,40 +10,10 @@ from chain.llm import SimpleLLM
 from chain.retriever import DocRetrieverManager
 from chain.history import RunnableWithMessageHistory, get_session_history, HISTORY_STORE
 from utils import open_img
-
-CONTEXT_SYSTEM_PROMPT = """
-Given a chat history and the latest user question
-which might reference context in the chat history, formulate a standalone question
-which can be understood without the chat history. Do NOT answer the question,
-just reformulate it if needed and otherwise return it as is.
-YOU MUST ANSWER IN ENGLISH
-"""
-QUERY_SYSTEM_PROMPT = """
-Instructions:
-Use clear and reliable language.
-You are an expert in manufacturing parts, and based on the additional information, answer as detailed and professionally as possible.
-This is very important for my career; if you do well, I will give you a tip.
-
-Procedure:
-1. Understand the user's question intent.
-2. Search for what the user wants in the additional information and answer.
-3. Think of other helpful information to provide.
-4. Summarize and recommend at least one suitable option.
-
-Rules:
-1. Answers must be based on additional information.
-2. Avoid using the text "additional information" in the output.
-3. Summarize and recommend at least one suitable option.
-4. DO NOT USE CODE FORMAT!.
-
-Output Example:
-Manufacturing part info human understand well
-Helpful information
-Most suitable option
-
-Additional Information:
-{context}
-"""
+from chain.prompt import (
+    CONTEXT_SYSTEM_PROMPT,
+    QUERY_SYSTEM_PROMPT,
+)
 
 class ChatManager:
     llm = None

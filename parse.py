@@ -1,7 +1,5 @@
-import os, re
-import json
-from typing import List, Tuple, Dict, Literal
-from PIL import Image
+import os
+from typing import List, Dict, Literal
 from glob import glob
 import pandas as pd
 

@@ -1,7 +1,7 @@
 import os, time
 from typing import Literal
-from langchain_core.language_models import LanguageModelInput
 from langchain_core.runnables import Runnable
+
 class SimpleLLM(Runnable):
     def __init__(
             self, 
