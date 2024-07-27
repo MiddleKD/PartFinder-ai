@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 import hashlib
 
 from typing import List, Dict, Literal, Any
@@ -17,7 +18,6 @@ class WebsearchRetriever(TavilySearchAPIRetriever):
         query:str = Field(description="Simple query to obtain additional information on web.")
 
     def __init__(self, max_results=1):
-        os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
         super().__init__(k=max_results)
 
     def as_tool(self):
@@ -45,14 +45,12 @@ class DocRetrieverManager(Chroma):
         
         if model_type == "google":
             from langchain_google_genai import GoogleGenerativeAIEmbeddings
-            os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
             if model_name is None:
                 emb_model = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
             else:
                 emb_model = GoogleGenerativeAIEmbeddings(model=model_name)
         elif model_type == "openai":
             from langchain_openai import OpenAIEmbeddings
-            os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
             if model_name is None:
                 emb_model = OpenAIEmbeddings()
             else:
@@ -111,7 +109,8 @@ class DocRetrieverManager(Chroma):
             return False
 
     def _insert_feature_into_template(self, features:dict, template:dict, mode:Literal["safe", "greedy"]="safe"):
-        
+        template = copy.deepcopy(template)
+
         result = {}
         for key, value in template.items():
             if key == "dimension_details":
@@ -157,17 +156,16 @@ class DocRetrieverManager(Chroma):
         return formed_features_list
 
     def insert_dict(self, inputs:List[dict], check_is_kb:bool=True):
-        inputs = inputs.copy()
         
         if check_is_kb == True:
             self._check_is_knowledgebase(inputs)
             ids = [self._generate_sha256_id(
                     [input["part_type"], 
-                    input["classification"], input
-                    ["metadata"]["ori_features"]]
+                    input["classification"], 
+                    input["metadata"]["ori_features"]]
                  ) for input in inputs]
-            for idx, id in enumerate(ids):
-                inputs[idx]["metadata"]["id"] = id
+            for input, id in zip(inputs, ids):
+                input["metadata"]["id"] = id
         docs = self._to_document(inputs)
         
         if check_is_kb == True:

@@ -2,6 +2,7 @@ import time
 from chain.knowledgebase import KnowledgeBaseTemplateChain
 from chain.retriever import DocRetrieverManager
 from parse import make_outerjoin_df, get_features_from_df
+from utils import open_img
 
 if __name__ == "__main__":
     import os
@@ -9,6 +10,7 @@ if __name__ == "__main__":
 
     load_dotenv()
 
+    os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
     data_fn = os.environ.get("DATA_PATH")
     bp_dir = os.environ.get("BLUEPRINT_DIR")
     retry_count = int(os.environ.get("RETRY_COUNT"))
@@ -32,13 +34,15 @@ if __name__ == "__main__":
     bp_kbtemplate_map = {}
     for bp_name, features_list in features_per_bp.items():
         bp_path = os.path.join(bp_dir, bp_name + ".jpg")
+
         kb_template = kb_template_chain.invoke(bp_path, features_list[0])
         bp_kbtemplate_map[bp_name] = kb_template
+
         print(f"Template for {bp_name} generated---")
         time.sleep(5)
 
     for bp_name, features_list in features_per_bp.items():
-        
+
         for _ in range(retry_count):
             try:
                 formed_features_list = doc_retriever_manager.insert_feature_list_into_template(
@@ -50,8 +54,11 @@ if __name__ == "__main__":
                 print(f"Make docs for {bp_name} template---")
                 break
             except ValueError as e:
+                bp_path = os.path.join(bp_dir, bp_name + ".jpg")
+                
                 kb_template = kb_template_chain.invoke(bp_path, features_list[0])
                 bp_kbtemplate_map[bp_name] = kb_template
+                
                 print(f"Wrong format {bp_name} template regenerate {e}---")
 
         print(f"Insert {bp_name} to DB---")

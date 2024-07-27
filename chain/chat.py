@@ -9,7 +9,6 @@ from langchain_core.documents import Document
 from chain.llm import SimpleLLM
 from chain.retriever import DocRetrieverManager
 from chain.history import RunnableWithMessageHistory, get_session_history, HISTORY_STORE
-from utils import open_img
 from chain.prompt import (
     CONTEXT_SYSTEM_PROMPT,
     QUERY_SYSTEM_PROMPT,
@@ -22,6 +21,7 @@ class ChatManager:
     context_prompt_template = None
     query_prompt_template = None
     chain = None
+    context_store = {}
 
     def __init__(
         self,
@@ -120,13 +120,28 @@ class ChatManager:
         self.set_prompt_template(mode=mode)
         self.set_chain()
     
-    def query(self, text:str, image_path:str=None, session_id:str="abc123"):
-        if image_path == None:
+    def update_context(self, session_id:str, context:List[Document]):
+        ids = []
+        for doc in context:
+            if hasattr(doc, "metadata"):
+                id = doc.metadata.get("id", None)
+                if id is not None:
+                    ids.append(id)
+        self.context_store[session_id] = ids
+    
+    def get_context(self, session_id:str):
+        return self.context_store.get(session_id, [])
+
+    def get_docs_from_ids(self, ids:List[str]):
+        return self.retriever_manager.get(ids, include=["metadata"])
+
+    def query(self, text:str, base64_image:str=None, session_id:str="abc123"):
+        if base64_image == None:
             self.update_prompt_template(mode="text")
             inputs = {"input": text}
         else:
             self.update_prompt_template(mode="multimodal")
-            inputs = {"input": text, "base64_image": open_img(image_path, "b64")}
+            inputs = {"input": text, "base64_image": base64_image}
         
         config = {
             "configurable": {"session_id": session_id},
@@ -135,20 +150,25 @@ class ChatManager:
             inputs,
             config=config
         )
-        return output
+        context = output["context"]
+
+        if len(context) > 0:
+            self.update_context(session_id, output["context"])
+        
+        return output["answer"]
 
     def query_steam(
             self,
             text: str,
-            image_path: str = None,
+            base64_image: str = None,
             session_id: str = "abc123"
         )-> Generator[Document, None, None]:
-        if image_path is None:
+        if base64_image is None:
             self.update_prompt_template(mode="text")
             inputs = {"input": text}
         else:
             self.update_prompt_template(mode="multimodal")
-            inputs = {"input": text, "base64_image": open_img(image_path, "b64")}
+            inputs = {"input": text, "base64_image": base64_image}
         
         config = {
             "configurable": {"session_id": session_id},
@@ -156,9 +176,9 @@ class ChatManager:
         
         for chunk in self.chain.stream(inputs, config=config):
             if "answer" in chunk:
-                yield {"type": "answer", "content": chunk["answer"]}
+                yield chunk["answer"]
             if "context" in chunk:
                 context = chunk["context"]
         
-        if context:
-            yield {"type": "context", "content": context}
+        if len(context) > 0:
+            self.update_context(session_id, context)

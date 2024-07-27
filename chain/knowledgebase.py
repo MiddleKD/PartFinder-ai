@@ -12,12 +12,12 @@ from langchain.prompts import (
 )
 from langchain_core.messages import AIMessage
 from chain.llm import SimpleLLM
-from utils import open_img
 from chain.prompt import (
     PREFIX_KNOWLEDGE_BASE_PROMPT,
     SUFFIX_KNOWLEDGE_BASE_PROMPT,
     EXAMPLE_KNOWLEDGE_BASE_LIST
 )
+from utils import open_img
 
 class KnowledgeBaseTemplateChain(SimpleLLM):
     
