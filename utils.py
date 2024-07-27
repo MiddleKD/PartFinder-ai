@@ -14,11 +14,14 @@ def pil_to_b64(img):
 def byte_to_b64(file_bytes:ByteString):
     return base64.b64encode(file_bytes).decode()
 
-def open_img(path:str, mode:Literal["pil", "b64"]="pil"):
+def open_img(path: str, mode: Literal["pil", "b64", "bytes"] = "pil"):
     pil_image = Image.open(path)
     
     if mode == "b64":
-        base64_image = pil_to_b64(pil_image)
-        return base64_image
+        return pil_to_b64(pil_image)
+    elif mode == "bytes":
+        img_byte_arr = BytesIO()
+        pil_image.save(img_byte_arr, format=pil_image.format)
+        return img_byte_arr.getvalue()
     else:
         return pil_image

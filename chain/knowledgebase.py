@@ -93,8 +93,8 @@ class KnowledgeBaseTemplateChain(SimpleLLM):
                     "features":features,
                 })
                 break
-            except ValueError as e:
-                print(f"Retry({retry_idx})... cause{e}")
+            except Exception as e:
+                print(f"Retry({retry_idx})... cause '{e}'")
                 time.sleep(5)
         
         cleaned_list = []

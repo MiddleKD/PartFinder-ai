@@ -130,10 +130,10 @@ class ChatManager:
         self.context_store[session_id] = ids
     
     def get_context(self, session_id:str):
-        return self.context_store.get(session_id, [])
+        return self.context_store.get(session_id, None)
 
     def get_docs_from_ids(self, ids:List[str]):
-        return self.retriever_manager.get(ids, include=["metadata"])
+        return self.retriever_manager.get(ids, include=["documents", "metadatas"])
 
     def query(self, text:str, base64_image:str=None, session_id:str="abc123"):
         if base64_image == None:
