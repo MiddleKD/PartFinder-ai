@@ -7,10 +7,9 @@ from utils import byte_to_b64, open_img
 from uuid import uuid4
 from parse import parse_dict_to_df
 
+# setting configs
 load_dotenv()
-
-st.set_page_config(layout="wide")
-st.markdown("""## 📐🔍PartFinder AI\n**Speak Blueprint:** AI-Powered Intuitive Manufacturing Parts Search System""")
+st.set_page_config(layout="wide", page_icon="🔍", page_title="PartFinder")
 
 context_data_ids = None
 
@@ -26,10 +25,17 @@ if "avatar_icon" not in st.session_state:
         "assistant": open_img("./assets/assistant.jpg", mode="pil")
     }
 
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
 @st.dialog("API error")
 def error_modal(message):
     st.write(message)
 
+# title
+st.markdown("""## 📐🔍PartFinder AI\n**Speak Blueprint:** AI-Powered Intuitive Manufacturing Parts Search System""")
+
+# sidebar
 sidebar_container = st.sidebar.container()
 with sidebar_container:
     google_api_key_input = st.text_input('GOOGLE API KEY', type='password', value="")
@@ -42,6 +48,7 @@ with sidebar_container:
         st.image(open_img("./assets/example_image.jpg", mode="bytes"))
         st.markdown("`Search some nuts with a 'D' greater than 3.0mm.`")
 
+# call chat model
 if len(google_api_key_input) >= 30:
     os.environ["GOOGLE_API_KEY"] = google_api_key_input
     if "chatmanager" in st.session_state:
@@ -54,16 +61,17 @@ else:
 if "chatmanager" not in st.session_state and len(os.environ.get("GOOGLE_API_KEY", "")) >= 30:
     st.session_state.chatmanager = ChatManager(llm_type="google", retriver_doc_num=5)
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
+# chat interface
 chat_column, data_column = st.columns(2)
 
 with chat_column:
+    
+    # init chat interface
     chat_container = st.container(height=400)
     if ("chatmanager" in st.session_state):
         with chat_container.chat_message("assistant", avatar=st.session_state.avatar_icon["assistant"]):
             chat_container.markdown("Hi! This is PartFinder AI. Let me help you find manufacturing parts.")
+    
     for message in st.session_state.messages:
         with chat_container.chat_message(message["role"], avatar=st.session_state.avatar_icon[message["role"]]):
             chat_container.markdown(message["content"])
@@ -72,8 +80,9 @@ with chat_column:
         prompt = st.chat_input("Input question!")
         upload_image = st.file_uploader("Choose blueprint image", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
 
+    # got prompt
     if prompt:
-        
+
         if ("chatmanager" not in st.session_state):
             error_modal("Set 'GOOGLE API KEY' first")
         else:
@@ -99,10 +108,12 @@ with chat_column:
             except:
                 error_modal("Somethig is wrong. Try again later.")
 
+# data interface
 with data_column:
     data_container = st.container(height=600)
     data_container.markdown("**Related datas:**")
     
+    # get data
     if "chatmanager" in st.session_state and context_data_ids is not None:
         datas = st.session_state.chatmanager.get_docs_from_ids(context_data_ids)
 
@@ -120,6 +131,8 @@ with data_column:
         st.session_state.df = data_df
     
     if "df" in st.session_state:
+        
+        # related data
         event = data_container.dataframe(
             st.session_state.df,
             height=200,
@@ -144,6 +157,7 @@ with data_column:
             selection_mode=["single-row"]
         )
 
+        # original data
         selected_rows = event.selection["rows"]
         if len(selected_rows) != 0:
             selected_record = st.session_state.df.iloc[selected_rows]
