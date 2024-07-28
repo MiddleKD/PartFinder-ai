@@ -2,13 +2,15 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 from chain.chat import ChatManager
+import pandas as pd
 from utils import byte_to_b64, open_img
 from uuid import uuid4
 from parse import parse_dict_to_df
 
 load_dotenv()
+
 st.set_page_config(layout="wide")
-st.title("Manufacturing Search Chat")
+st.markdown("""## 📐🔍PartFinder AI\n**Speak Blueprint:** AI-Powered Intuitive Manufacturing Parts Search System""")
 
 context_data_ids = None
 
@@ -18,11 +20,28 @@ if "session_id" not in st.session_state:
 if os.getenv("GOOGLE_API_KEY") is not None:
     os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
+if "avatar_icon" not in st.session_state:
+    st.session_state.avatar_icon = {
+        "user": open_img("./assets/user.jpg", mode="pil"),
+        "assistant": open_img("./assets/assistant.jpg", mode="pil")
+    }
+
 @st.dialog("API error")
 def error_modal(message):
     st.write(message)
 
-google_api_key_input = st.sidebar.text_input('GOOGLE API KEY', type='password', value="")
+sidebar_container = st.sidebar.container()
+with sidebar_container:
+    google_api_key_input = st.text_input('GOOGLE API KEY', type='password', value="")
+    
+    with st.container(border=True):
+        st.markdown("### Text example")
+        st.markdown("`Show me the bolt with a height greater than 10.0mm and smaller than 15.0mm.`")
+    with st.container(border=True):
+        st.markdown("### Image example")
+        st.image(open_img("./assets/example_image.jpg", mode="bytes"))
+        st.markdown("`Search some nuts with a 'D' greater than 3.0mm.`")
+
 if len(google_api_key_input) >= 30:
     os.environ["GOOGLE_API_KEY"] = google_api_key_input
     if "chatmanager" in st.session_state:
@@ -43,10 +62,10 @@ chat_column, data_column = st.columns(2)
 with chat_column:
     chat_container = st.container(height=400)
     if ("chatmanager" in st.session_state):
-        with chat_container.chat_message("assistant"):
-            chat_container.markdown("Hi, chat is ready!")
+        with chat_container.chat_message("assistant", avatar=st.session_state.avatar_icon["assistant"]):
+            chat_container.markdown("Hi! This is PartFinder AI. Let me help you find manufacturing parts.")
     for message in st.session_state.messages:
-        with chat_container.chat_message(message["role"]):
+        with chat_container.chat_message(message["role"], avatar=st.session_state.avatar_icon[message["role"]]):
             chat_container.markdown(message["content"])
 
     with st.container(height=200):
@@ -59,7 +78,7 @@ with chat_column:
             error_modal("Set 'GOOGLE API KEY' first")
         else:
             base64_image = None
-            with chat_container.chat_message("user"):
+            with chat_container.chat_message("user", avatar=st.session_state.avatar_icon["user"]):
                 if upload_image is not None:
                     chat_container.image(upload_image)
                     base64_image = byte_to_b64(upload_image.getvalue())
@@ -68,7 +87,7 @@ with chat_column:
             st.session_state.messages.append({"role": "user", "content": prompt})
 
             try:
-                with chat_container.chat_message("assistant"):
+                with chat_container.chat_message("assistant", avatar=st.session_state.avatar_icon["assistant"]), st.spinner('Wait for it...'):
                     stream = st.session_state.chatmanager.query_steam(
                         text=prompt,
                         base64_image=base64_image,
@@ -80,12 +99,9 @@ with chat_column:
             except:
                 error_modal("Somethig is wrong. Try again later.")
 
-        # Show me the bolt with a height greater than 10.0mm and smaller than 12.1mm."
-
-
 with data_column:
     data_container = st.container(height=600)
-    data_container.markdown("### Related datas:")
+    data_container.markdown("**Related datas:**")
     
     if "chatmanager" in st.session_state and context_data_ids is not None:
         datas = st.session_state.chatmanager.get_docs_from_ids(context_data_ids)
@@ -102,7 +118,7 @@ with data_column:
             ],
         )
         st.session_state.df = data_df
-    import pandas as pd
+    
     if "df" in st.session_state:
         event = data_container.dataframe(
             st.session_state.df,
@@ -133,10 +149,15 @@ with data_column:
             selected_record = st.session_state.df.iloc[selected_rows]
 
             dc_c1, dc_c2 = data_container.columns(2)
-            dc_c1.image(open_img(os.path.join(os.getenv("BLUEPRINT_DIR"), selected_record["blueprint"].values[0]), mode="bytes"))
-            dc_c1.markdown(f"- {selected_record['part_type'].values[0]}\n- {selected_record['classification'].values[0]}")
-            dc_c1.markdown(f"- {selected_record['ori_features'].values[0]}")
+            dc_c1.markdown("**Blueprint:**")
+            dc_c1.image(
+                open_img(os.path.join(os.getenv("BLUEPRINT_DIR"), selected_record["blueprint"].values[0]), mode="bytes"),
+                caption=selected_record['part_type'].values[0]
+            )
+            dc_c1.markdown("**Original data:**")
+            dc_c1.json(selected_record['ori_features'].values[0], expanded=False)
             
+            dc_c2.markdown("**Generated data:**")
             dc_c2.dataframe(
                 pd.DataFrame(selected_record["dimension_details"].values[0]),
                 column_config={

@@ -8,7 +8,7 @@ from langchain_core.documents import Document
 
 from chain.llm import SimpleLLM
 from chain.retriever import DocRetrieverManager
-from chain.history import RunnableWithMessageHistory, get_session_history, HISTORY_STORE
+from chain.history import RunnableWithMessageHistory, get_session_history
 from chain.prompt import (
     CONTEXT_SYSTEM_PROMPT,
     QUERY_SYSTEM_PROMPT,
