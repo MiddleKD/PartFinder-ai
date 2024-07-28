@@ -27,14 +27,21 @@
         <img src="assets/img_demo4.png" alt="demo4">
     </ul>
 </details>
+<details>
+    <summary><strong>Structure</strong></summary>
+    <ul>
+        <img src="assets/structure.jpg" alt="structure">
+    </ul>
+</details>
 
 ## 📌 Index
 1. [Introduction](#-introduction)
-2. [Features](#-features)
-3. [Approach](#-approach)
-4. [Install](#-install)
-5. [How to use](#-how-to-use)
-6. [Contact](#-contact)
+2. [Caution](#️-caution)
+3. [Features](#-features)
+4. [Approach](#-approach)
+5. [Install](#-install)
+6. [How to use](#-how-to-use)
+7. [Contact](#-contact)
 
 ## 🚀 Introduction
 PartFinder-AI 프로젝트는 제조업체 및 기술 지원팀을 위한 흥미로운 솔루션입니다. 
@@ -73,6 +80,8 @@ PartFinder-AI 프로젝트는 제조업체 및 기술 지원팀을 위한 흥미
 
 ## 🛠 Approach
 ### 1. Background: 문제 인식
+![problem1](assets/problem1.png)
+![problem2](assets/problem2.png)
 현대 제조업체 및 기술 지원 팀은 제품 부품에 대한 정확하고 신속한 정보 접근이 중요합니다. 그러나 다음과 같은 문제점들이 있습니다:
 
 - **정보 분산**: 도면, 메타데이터, 텍스트 문서 등의 정보가 분산되어 있어 검색 및 접근이 어렵습니다.
@@ -84,6 +93,7 @@ PartFinder-AI 프로젝트는 제조업체 및 기술 지원팀을 위한 흥미
 제조업 분야에서는 복잡한 부품 정보에 대한 신속하고 정확한 접근이 필요합니다. 기존의 검색 시스템은 종종 부정확하거나 시간이 많이 소요되어 생산성 저하의 원인이 되었습니다.
 
 ### 2. Solution: Multimodal embedding document
+![solution](assets/solution.png)
 - **Multimodal embedding**: **제품 도면과 상세 메타데이터를 하나의 임베딩 벡터에 통합**하여 보다 유연한 검색 문서를 마련합니다.
 - **Few shot prompt engineering**: LLM의 결과물을 적절한 형태의 응답으로 유도하여, **도면과 메타데이터의 정보손실을 최소화**합니다.
 - **RAG application**: 벡터 DB에 저장된 정보를 효과적으로 검색하고 retrieve된 문서와 유저의 쿼리를 기반으로 새로운 응답합니다.
