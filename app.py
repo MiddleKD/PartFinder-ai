@@ -59,7 +59,10 @@ else:
     error_modal("Your API key is wrong format.")
 
 if "chatmanager" not in st.session_state and len(os.environ.get("GOOGLE_API_KEY", "")) >= 30:
-    st.session_state.chatmanager = ChatManager(llm_type="google", retriver_doc_num=5)
+    st.session_state.chatmanager = ChatManager(
+        llm_type="google", 
+        retriver_doc_num=10
+    )
 
 # chat interface
 chat_column, data_column = st.columns(2)

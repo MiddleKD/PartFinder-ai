@@ -2,8 +2,7 @@
 제조 부품 검색의 비효율성을 해결하기 위해, 도면과 메타데이터를 멀티모달 임베딩한 문서를 사용하는 RAG 시스템입니다.
 
 ## 🎬 Demo
-![structure](assets/structure.jpg)
-![project_header](assets/demo1.png)
+![gif_demo](assets/gif_demo.gif)
 <details>
     <summary><strong>Interface</strong></summary>
     <ul>
@@ -13,24 +12,19 @@
 <details>
     <summary><strong>Only text query</strong></summary>
     <ul>
-        <img src="assets/demo1.png" alt="demo1">
-        <img src="assets/demo2.png" alt="demo2">
-        <img src="assets/demo3.png" alt="demo3">
-        <img src="assets/demo4.png" alt="demo4">
-        <img src="assets/demo5.png" alt="demo5">
+        <img src="assets/txt_demo1.png" alt="demo1">
+        <img src="assets/txt_demo2.png" alt="demo2">
+        <img src="assets/txt_demo3.png" alt="demo3">
+        <img src="assets/txt_demo4.png" alt="demo4">
     </ul>
 </details>
 <details>
     <summary><strong>Image & text query</strong></summary>
     <ul>
-        <img src="assets/demo6.png" alt="demo6">
-        <img src="assets/demo7.png" alt="demo7">
-    </ul>
-</details>
-<details>
-    <summary><strong>DB search by ID</strong></summary>
-    <ul>
-        <img src="assets/demo8.png" alt="demo8">
+        <img src="assets/img_demo1.png" alt="demo1">
+        <img src="assets/img_demo2.png" alt="demo2">
+        <img src="assets/img_demo3.png" alt="demo3">
+        <img src="assets/img_demo4.png" alt="demo4">
     </ul>
 </details>
 
