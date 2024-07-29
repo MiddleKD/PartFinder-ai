@@ -30,9 +30,14 @@
 </details>
 <details>
     <summary><strong>Structure</strong></summary>
-    <ul>
-        <img src="assets/structure.jpg" alt="structure">
-    </ul>
+        <figure>
+            <img src="assets/structure.jpg" alt="structure">
+            <figcaption>System structure</figcaption>
+        </figure>
+        <figure>
+             <img src="assets/qa_lifecycle.png" alt="qa_lifecycle">
+            <figcaption>QA lifecycle</figcaption>
+        </figure>  
 </details>
 
 ## 📌 Index
@@ -101,9 +106,10 @@ PartFinder-AI 프로젝트는 제조업체 및 기술 지원팀을 위한 흥미
 - **LLM chat**: LLM의 유연한 언어능력을 기반으로 **다양한 도메인(전문가, 비전문가 etc)의 쿼리를 통합적으로 처리**합니다.
 
 ### 3. Solution: Template generate and insert workflow
+![insert_template](assets/insert_template.png)
 - **Time consuming of LLM**: 하나의 제조 부품에 대한 지식 기반을 LLM을 통해 생성하는데 걸리는 평균 시간은 12초입니다. 그래서 모든 제조 부품에 LLM을 적용하기에는 현실적으로 어렵습니다.
 - **Template generation**: 도면과 제조 부품의 관계는 1:1 관계가 아닌 1:N 관계(많은 경우 1:500↑)입니다. **도면의 수치가 alphabet alias라면, 맵핑된 수치를 조정하면서 부품을 생산하는 방식**입니다. 따라서 도면과 alphabet alias를 기반으로 한 Template생성은 효율적입니다.
-- **Insert specific data for each part**: LLM이 Template을 생성하면 제조 부품 메타데이터를 규칙에 맞게 삽입합니다. 이로 인해 지식기반 생성에 시간과 비용을 획기적으로 줄일 수 있습니다.
+- **Insert specific data for each part**: LLM이 Template을 생성하면 제조 부품 메타데이터를 규칙에 맞게 삽입합니다. 이로 인해 지식기반 생성에 시간과 비용을 획기적으로 절약할 수 있습니다.
 
 ## 📥 Install
 ```bash
