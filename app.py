@@ -46,7 +46,7 @@ with sidebar_container:
     with st.container(border=True):
         st.markdown("### Image example")
         st.image(open_img("./assets/example_image.jpg", mode="bytes"))
-        st.markdown("`Search some nuts with a 'D' greater than 3.0mm.`")
+        st.markdown("`Search Wing nuts with a 'D' greater than 3.0mm.`")
 
 # call chat model
 if len(google_api_key_input) >= 30:
